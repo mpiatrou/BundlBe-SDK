@@ -1,5 +1,3 @@
----
-
 # 📦 BundlBe SDK
 
 `BundlBe` is a lightweight iOS SDK for subscription activation and paywall management.
