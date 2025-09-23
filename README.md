@@ -1,4 +1,11 @@
-# 📦 BundlBe SDK
+# BundlBe SDK
+
+[![CocoaPods](https://img.shields.io/cocoapods/v/BundlBe)](https://cocoapods.org/pods/BundlBe)
+![SPM](https://img.shields.io/badge/SPM-compatible-brightgreen)
+![Platform](https://img.shields.io/badge/platform-iOS-lightgrey)
+![Swift](https://img.shields.io/badge/Swift-5.9-orange)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 
 `BundlBe` is a lightweight iOS SDK for subscription activation and paywall management.
 It provides three main functions:
@@ -9,7 +16,7 @@ It provides three main functions:
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Swift Package Manager
 
@@ -42,11 +49,11 @@ pod install
 
 ---
 
-## ⚡ Usage
+## Usage
 
 ### 1. Login
 
-Use when a user enters an activation code **or** when the app launches (to check subscription status).
+Use when a user enters an activation code **and** when the app launches (to check subscription status).
 
 ```swift
 import BundlBe
@@ -58,7 +65,7 @@ BundlBe.login(
 ) { result in
     switch result {
     case .success(let response):
-        print("✅ Login success:", response)
+        print("Login success:", response)
         
         if BundlBe.isPaywallSuppressed {
             print("Paywall hidden")
@@ -67,7 +74,7 @@ BundlBe.login(
         }
         
     case .failure(let error):
-        print("❌ Login error:", error.localizedDescription)
+        print("Login error:", error.localizedDescription)
     }
 }
 ```
@@ -86,9 +93,9 @@ BundlBe.logout(
 ) { result in
     switch result {
     case .success:
-        print("✅ Logged out")
+        print("Logged out")
     case .failure(let error):
-        print("❌ Logout error:", error.localizedDescription)
+        print("Logout error:", error.localizedDescription)
     }
 }
 ```

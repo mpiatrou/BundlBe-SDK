@@ -1,0 +1,85 @@
+BundlBe SDK and API License Agreement
+Effective Date: 01.0.2025
+Last Updated: 01.06.2025
+Entity: Klava Apps Limited, operator of BundlBe (“BundlBe”, “we”, “us”, “our”)
+
+1. Grant of License
+Subject to the terms of this Agreement, BundlBe hereby grants the approved developer (“Developer”, “you”) a limited, non-exclusive, non-transferable, revocable license to integrate, access, and use the BundlBe Software Development Kit (SDK), Application Programming Interface (API), associated libraries, documentation, and tools (collectively, the “BundlBe Integration Tools”) solely for the purpose of enabling functionality required for apps listed and distributed through the BundlBe platform.
+
+2. Restrictions
+You agree that you shall not:
+Use the BundlBe Integration Tools for any purpose other than enabling authorized BundlBe functionality.
+
+
+Share, sublicense, sell, lease, or otherwise distribute the BundlBe Integration Tools to third parties.
+
+
+Modify, reverse engineer, decompile, or create derivative works of the BundlBe SDK or API.
+
+
+Attempt to disable or bypass subscription validation, paywall suppression, or fraud detection functionality built into the SDK or API.
+
+
+Use the SDK or API for any application or environment not expressly approved by BundlBe.
+
+
+
+3. Mandatory Integration Requirements
+As a condition of listing any application on the BundlBe platform, the Developer must:
+Integrate the BundlBe SDK into every mobile app submitted to BundlBe.
+Implement and properly configure the “Redeem Access Code” user flow within the app’s Settings or user access section, calling:
+BundlBe.login(...) to authenticate and unlock BundlBe access.
+BundlBe.logout(...) to allow users to disconnect their BundlBe account and reset suppression state.
+Respect SDK-returned flags such as BundlBe.isPaywallSuppressed and suppress native paywalls accordingly, ensuring BundlBe users are not shown duplicate charges.
+Allow BundlBe to monitor subscription-related events and fraud prevention signals via the API and SDK events interface.
+Failure to comply with these conditions may result in access termination and removal of apps from the BundlBe platform.
+
+4. Data Ownership and Processing
+All data collected or transmitted via the BundlBe Integration Tools is processed in accordance with our Privacy Policy. You acknowledge that:
+BundlBe retains ownership over any data related to platform users, subscriptions, device authentication, fraud detection, or unlock verification.
+
+
+You shall not retain, use, or disclose BundlBe user data beyond the scope of the integration without explicit permission.
+
+
+
+5. Intellectual Property
+All rights, title, and interest in and to the BundlBe Integration Tools, including all associated intellectual property rights, remain with BundlBe and its licensors. Nothing in this Agreement shall be construed to grant you any rights in or to the SDK, API, trademarks, or any other proprietary BundlBe assets, except for the limited license expressly set forth herein.
+
+6. Termination
+This Agreement shall remain in effect unless terminated:
+By BundlBe, at any time and for any reason, with or without notice;
+
+
+Automatically upon violation of any provision of this Agreement;
+
+
+If the Developer discontinues its use of the BundlBe Integration Tools or is removed from the BundlBe platform.
+
+
+Upon termination, Developer must immediately delete all SDK components from its apps and cease all use of BundlBe APIs.
+
+7. Indemnity
+You agree to indemnify, defend, and hold harmless BundlBe, its affiliates, officers, directors, and employees, from and against any and all third-party claims, liabilities, damages, losses, and expenses (including reasonable legal fees) arising from or in connection with:
+Your use of the BundlBe Integration Tools;
+
+
+Any violation of this Agreement;
+
+
+Any claims arising from your app(s) distributed via the BundlBe platform.
+
+
+
+8. Disclaimer of Warranties
+The BundlBe Integration Tools are provided “as is” and “as available” without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement.
+
+9. Limitation of Liability
+To the fullest extent permitted by applicable law, BundlBe shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits, revenue, data, or business opportunities arising out of or related to this Agreement or the use of the Integration Tools, even if advised of the possibility of such damages.
+
+10. Governing Law
+This Agreement shall be governed by and construed in accordance with the laws of Hong Kong, without regard to its conflict of law principles.
+
+11. Contact
+For any questions or notices regarding this Agreement, please contact:
+support@bundlbe.com
