@@ -1,3 +1,5 @@
+---
+
 # BundlBe SDK
 
 [![CocoaPods](https://img.shields.io/cocoapods/v/BundlBe)](https://cocoapods.org/pods/BundlBe)
@@ -6,11 +8,11 @@
 ![Swift](https://img.shields.io/badge/Swift-5.9-orange)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-
 `BundlBe` is a lightweight iOS SDK for subscription activation and paywall management.
-It provides three main functions:
 
-1. **Login** — authenticate and verify subscription
+It provides three main features:
+
+1. **Login** — authenticate and verify subscription (cached for 24h)
 2. **Logout** — clear session and reset state
 3. **Paywall Suppressor** — check whether paywall should be hidden
 
@@ -53,29 +55,59 @@ pod install
 
 ### 1. Login
 
-Use when a user enters an activation code **and** when the app launches (to check subscription status).
+Call `login` when:
+
+* the user enters an activation code (manual activation),
+* the app launches (to validate subscription status).
+
+**Logic:**
+
+* If the last successful verification was **less than 24 hours ago** → cached result is returned immediately.
+* Otherwise → `/login` request is sent to the backend.
+
+#### 1. Example: Manual activation
 
 ```swift
 import BundlBe
 
+// Save the code after first activation
+let userCode = "USER_CODE"
+UserDefaults.standard.set(userCode, forKey: "USER_CODE")
+
+// Call login
 BundlBe.login(
-    code: "USER_CODE",
+    code: userCode,
     appID: "APP_ID",
     deviceID: "DEVICE_ID"
 ) { result in
-    switch result {
-    case .success(let response):
-        print("Login success:", response)
-        
-        if BundlBe.isPaywallSuppressed {
-            print("Paywall hidden")
-        } else {
-            print("Paywall visible")
+    print("Login result:", result)
+}
+```
+
+#### 2. Example: AppDelegate
+
+Call `login` at startup if the activation code was previously saved (e.g. in `UserDefaults`).
+This ensures subscription status is checked automatically once per day.
+
+```swift
+import BundlBe
+
+func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+) -> Bool {
+
+    if let userCode = UserDefaults.standard.string(forKey: "USER_CODE") {
+        BundlBe.login(
+            code: userCode,
+            appID: "APP_ID",
+            deviceID: UIDevice.current.identifierForVendor?.uuidString ?? ""
+        ) { result in
+            print("Login result:", result)
         }
-        
-    case .failure(let error):
-        print("Login error:", error.localizedDescription)
     }
+
+    return true
 }
 ```
 
@@ -83,7 +115,7 @@ BundlBe.login(
 
 ### 2. Logout
 
-Calls `/logout` and resets suppress state.
+Calls `/logout` on the backend and **always** resets the suppress state locally.
 
 ```swift
 BundlBe.logout(
@@ -104,7 +136,7 @@ BundlBe.logout(
 
 ### 3. Paywall Suppressor
 
-Use to check UI state:
+Check whether the paywall should be displayed:
 
 ```swift
 if BundlBe.isPaywallSuppressed {

@@ -17,9 +17,8 @@ public enum BundlBe {
     /**
      Performs login with a subscription activation code.
      
-     - Checks if the last verification was less than 24h ago:
-       - If yes → returns cached success.
-       - If no → sends `/login` request to backend.
+     - If `lastVerified` is missing or older than 24h → sends `/login` request to backend.
+     - Otherwise → returns cached success immediately.
      
      On success:
      - Saves `lastVerified` and `paywallSuppress` in `UserDefaults`.
@@ -41,36 +40,36 @@ public enum BundlBe {
         completion: @escaping (Result<BundlBeResponse, Error>) -> Void
     ) {
         let now = Date()
-
-        if let lastVerified = userDefaults.object(forKey: Keys.lastVerified) as? Date,
-           let oneDayAgo = Calendar.current.date(byAdding: .day, value: -1, to: now),
-           lastVerified > oneDayAgo {
-            completion(.success(BundlBeResponse(paywallSuppress: isPaywallSuppressed, error: nil)))
-            return
-        }
-
-        let body = ["code": code, "app_id": appID, "device_id": deviceID]
-        request(path: "/login", body: body) { (result: Result<BundlBeResponse, Error>) in
-            switch result {
-            case .success(let response):
-                userDefaults.set(now, forKey: Keys.lastVerified)
-                userDefaults.set(response.paywallSuppress, forKey: Keys.paywallSuppress)
-                userDefaults.synchronize()
-
-                if hasAppleSubscriptions() {
-                    postDuplicate(code: code, appID: appID)
-                } else {
-                    deleteDuplicate(code: code, appID: appID)
+        
+        let lastVerified = userDefaults.object(forKey: Keys.lastVerified) as? Date
+        let oneDayAgo = Calendar.current.date(byAdding: .day, value: -1, to: now)
+        
+        if lastVerified == nil || (oneDayAgo != nil && lastVerified! < oneDayAgo!) {
+            let body = ["code": code, "app_id": appID, "device_id": deviceID]
+            request(path: "/login", body: body) { (result: Result<BundlBeResponse, Error>) in
+                switch result {
+                case .success(let response):
+                    userDefaults.set(now, forKey: Keys.lastVerified)
+                    userDefaults.set(response.paywallSuppress, forKey: Keys.paywallSuppress)
+                    userDefaults.synchronize()
+                    
+                    if hasAppleSubscriptions() {
+                        postDuplicate(code: code, appID: appID)
+                    } else {
+                        deleteDuplicate(code: code, appID: appID)
+                    }
+                    
+                    completion(.success(response))
+                    
+                case .failure(let error):
+                    userDefaults.removeObject(forKey: Keys.lastVerified)
+                    userDefaults.set(false, forKey: Keys.paywallSuppress)
+                    userDefaults.synchronize()
+                    completion(.failure(error))
                 }
-
-                completion(.success(response))
-
-            case .failure(let error):
-                userDefaults.removeObject(forKey: Keys.lastVerified)
-                userDefaults.set(false, forKey: Keys.paywallSuppress)
-                userDefaults.synchronize()
-                completion(.failure(error))
             }
+        } else {
+            completion(.success(BundlBeResponse(paywallSuppress: isPaywallSuppressed, error: nil)))
         }
     }
     
