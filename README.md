@@ -1,5 +1,3 @@
----
-
 # BundlBe SDK
 
 [![CocoaPods](https://img.shields.io/cocoapods/v/BundlBe)](https://cocoapods.org/pods/BundlBe)
