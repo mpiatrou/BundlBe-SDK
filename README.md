@@ -31,7 +31,6 @@ dependencies: [
 Or in Xcode:
 `File` → `Add Packages...` → paste repository URL → `Add Package`.
 
----
 
 ### CocoaPods
 
