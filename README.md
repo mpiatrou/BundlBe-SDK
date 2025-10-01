@@ -112,7 +112,7 @@ func application(
 
 ### 2. Logout
 
-Calls `/logout` on the backend and **always** resets the suppress state locally.
+Calls `/logout` to resets the suppress state.
 
 ```swift
 BundlBe.logout(

@@ -105,8 +105,6 @@ public enum BundlBe {
                 completion(.success(forced))
 
             case .failure(let error):
-                userDefaults.set(false, forKey: Keys.paywallSuppress)
-                userDefaults.synchronize()
                 completion(.failure(error))
             }
         }
