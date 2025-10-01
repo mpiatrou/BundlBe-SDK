@@ -99,6 +99,7 @@ public enum BundlBe {
             switch result {
             case .success(let response):
                 userDefaults.set(response.paywallSuppress, forKey: Keys.paywallSuppress)
+                userDefaults.removeObject(forKey: Keys.lastVerified)
                 userDefaults.synchronize()
                 let forced = BundlBeResponse(paywallSuppress: false, error: response.error)
                 completion(.success(forced))
