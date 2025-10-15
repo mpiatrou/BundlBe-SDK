@@ -190,6 +190,66 @@ public enum BundlBe {
        - body: Request body as dictionary.
        - completion: Completion with decoded response `T` or `Error`.
      */
+//    private static func request<T: Decodable>(
+//        path: String,
+//        method: String = "POST",
+//        body: [String: Any],
+//        completion: @escaping (Result<T, Error>) -> Void
+//    ) {
+//        guard let url = URL(string: baseURL + path) else {
+//            completion(.failure(AuthError.invalidURL))
+//            return
+//        }
+//        
+//        var request = URLRequest(url: url)
+//        request.httpMethod = method
+//        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+//        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+//        
+//        URLSession.shared.dataTask(with: request) { data, response, error in
+//            if let error = error {
+//                completion(.failure(error))
+//                return
+//            }
+//            
+//            guard let httpResponse = response as? HTTPURLResponse else {
+//                completion(.failure(AuthError.invalidResponse))
+//                return
+//            }
+//            
+//            let statusCode = httpResponse.statusCode
+//            guard let data = data else {
+//                completion(.failure(AuthError.serverError(status: statusCode, message: nil)))
+//                return
+//            }
+//            
+//            switch statusCode {
+//            case 200...299:
+//                do {
+//                    let decoded = try JSONDecoder().decode(T.self, from: data)
+//                    completion(.success(decoded))
+//                } catch {
+//                    let raw = String(data: data, encoding: .utf8) ?? "nil"
+//                    print("Decoding failed. Raw response: \(raw)")
+//                    completion(.failure(error))
+//                }
+//                
+//            default:
+//                if let decoded = try? JSONDecoder().decode(BundlBeResponse.self, from: data) {
+//                    let apiError = ErrorResponse(
+//                        statusCode: statusCode,
+//                        paywallSuppress: decoded.paywallSuppress,
+//                        message: decoded.error
+//                    )
+//                    completion(.failure(apiError))
+//                } else {
+//                    let message = String(data: data, encoding: .utf8)
+//                    completion(.failure(AuthError.serverError(status: statusCode, message: message)))
+//                }
+//            }
+//        }.resume()
+//    }
+    
     private static func request<T: Decodable>(
         path: String,
         method: String = "POST",
@@ -198,6 +258,7 @@ public enum BundlBe {
     ) {
         guard let url = URL(string: baseURL + path) else {
             completion(.failure(AuthError.invalidURL))
+            showAlert(message: "Invalid URL")
             return
         }
         
@@ -208,17 +269,20 @@ public enum BundlBe {
         
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
+                showAlert(message: "Network error: \(error.localizedDescription)")
                 completion(.failure(error))
                 return
             }
             
             guard let httpResponse = response as? HTTPURLResponse else {
+                showAlert(message: "Invalid server response")
                 completion(.failure(AuthError.invalidResponse))
                 return
             }
             
             let statusCode = httpResponse.statusCode
             guard let data = data else {
+                showAlert(message: "Empty response (status: \(statusCode))")
                 completion(.failure(AuthError.serverError(status: statusCode, message: nil)))
                 return
             }
@@ -227,26 +291,42 @@ public enum BundlBe {
             case 200...299:
                 do {
                     let decoded = try JSONDecoder().decode(T.self, from: data)
+                    let raw = String(data: data, encoding: .utf8) ?? ""
+                    showAlert(message: "✅ Success (\(statusCode)):\n\(raw)")
                     completion(.success(decoded))
                 } catch {
-                    let raw = String(data: data, encoding: .utf8) ?? "nil"
-                    print("Decoding failed. Raw response: \(raw)")
+                    let raw = String(data: data, encoding: .utf8) ?? ""
+                    showAlert(message: "⚠️ Decoding failed: \(error.localizedDescription)\nRaw:\n\(raw)")
                     completion(.failure(error))
                 }
                 
             default:
+                let message = String(data: data, encoding: .utf8) ?? "Unknown error"
+                showAlert(message: "❌ Server error (\(statusCode)):\n\(message)")
+                
                 if let decoded = try? JSONDecoder().decode(BundlBeResponse.self, from: data) {
-                    let apiError = ErrorResponse(
-                        statusCode: statusCode,
-                        paywallSuppress: decoded.paywallSuppress,
-                        message: decoded.error
-                    )
+                    let apiError = ErrorResponse(statusCode: statusCode,
+                                                 paywallSuppress: decoded.paywallSuppress,
+                                                 message: decoded.error)
                     completion(.failure(apiError))
                 } else {
-                    let message = String(data: data, encoding: .utf8)
                     completion(.failure(AuthError.serverError(status: statusCode, message: message)))
                 }
             }
         }.resume()
     }
+
+    
+    private static func showAlert(message: String) {
+        DispatchQueue.main.async {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootVC = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController else { return }
+            
+            let alert = UIAlertController(title: "Server Response", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            
+            rootVC.present(alert, animated: true)
+        }
+    }
+
 }
