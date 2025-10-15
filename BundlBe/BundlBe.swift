@@ -132,33 +132,65 @@ public enum BundlBe {
        - code: User activation code.
        - appID: Application identifier.
      */
+//    private static func postDuplicate(code: String, appID: String) {
+//        let body = ["code": code, "app_id": appID]
+//        request(path: "/subscription-duplicate", method: "POST", body: body) { (result: Result<DuplicateResponse, Error>) in
+//            switch result {
+//            case .success(let response):
+//                print("PostDuplicate success:", response.success ?? false)
+//            case .failure(let error):
+//                print("PostDuplicate error:", error.localizedDescription)
+//            }
+//        }
+//    }
+//
+//    /**
+//     Sends `/subscription-duplicate` DELETE request when Apple subscription does not exist.
+//     
+//     - Parameters:
+//       - code: User activation code.
+//       - appID: Application identifier.
+//     */
+//    private static func deleteDuplicate(code: String, appID: String) {
+//        let body = ["code": code, "app_id": appID]
+//        request(path: "/subscription-duplicate", method: "DELETE", body: body) { (result: Result<DuplicateResponse, Error>) in
+//            switch result {
+//            case .success(let response):
+//                print("DeleteDuplicate success:", response.success ?? false)
+//            case .failure(let error):
+//                print("DeleteDuplicate error:", error.localizedDescription)
+//            }
+//        }
+//    }
+    
     private static func postDuplicate(code: String, appID: String) {
         let body = ["code": code, "app_id": appID]
         request(path: "/subscription-duplicate", method: "POST", body: body) { (result: Result<DuplicateResponse, Error>) in
             switch result {
             case .success(let response):
-                print("PostDuplicate success:", response.success ?? false)
+                let message = "✅ PostDuplicate success: \(response.success ?? false)"
+                print(message)
+                showAlert(message: message)
             case .failure(let error):
-                print("PostDuplicate error:", error.localizedDescription)
+                let message = "❌ PostDuplicate error: \(error.localizedDescription)"
+                print(message)
+                showAlert(message: message)
             }
         }
     }
 
-    /**
-     Sends `/subscription-duplicate` DELETE request when Apple subscription does not exist.
-     
-     - Parameters:
-       - code: User activation code.
-       - appID: Application identifier.
-     */
     private static func deleteDuplicate(code: String, appID: String) {
         let body = ["code": code, "app_id": appID]
         request(path: "/subscription-duplicate", method: "DELETE", body: body) { (result: Result<DuplicateResponse, Error>) in
             switch result {
             case .success(let response):
-                print("DeleteDuplicate success:", response.success ?? false)
+                let message = "✅ DeleteDuplicate success: \(response.success ?? false)"
+                print(message)
+                showAlert(message: message)
             case .failure(let error):
-                print("DeleteDuplicate error:", error.localizedDescription)
+                let message = "❌ DeleteDuplicate error: \(error.localizedDescription)"
+                print(message)
+                showAlert(message: message)
             }
         }
     }
