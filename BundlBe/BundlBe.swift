@@ -53,10 +53,13 @@ public enum BundlBe {
                     userDefaults.set(response.paywallSuppress, forKey: Keys.paywallSuppress)
                     userDefaults.synchronize()
                     
-                    if hasAppleSubscriptions() {
-                        postDuplicate(code: code, appID: appID)
-                    } else {
-                        deleteDuplicate(code: code, appID: appID)
+                    Task {
+                        let hasSubscription = await hasActiveAppleSubscription()
+                        if hasSubscription {
+                            postDuplicate(code: code, appID: appID)
+                        } else {
+                            deleteDuplicate(code: code, appID: appID)
+                        }
                     }
                     
                     completion(.success(response))
@@ -203,10 +206,10 @@ public enum BundlBe {
      
      - Returns: `true` if user has active or restored subscriptions.
      */
-    private static func hasAppleSubscriptions() -> Bool {
-        let transactions = SKPaymentQueue.default().transactions
-        for transaction in transactions {
-            if transaction.transactionState == .purchased || transaction.transactionState == .restored {
+    private static func hasActiveAppleSubscription() async -> Bool {
+        for await result in Transaction.currentEntitlements {
+            if case .verified(let transaction) = result,
+                transaction.productType == .autoRenewable {
                 return true
             }
         }
